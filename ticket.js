@@ -1,31 +1,251 @@
 const {REST, Routes} = require('discord.js');
 const fs = require('fs');
-const { Client, GatewayIntentBits, PermissionsBitField, ChannelType, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, MessageCollector } = require('discord.js');
+const { Client, GatewayIntentBits, PermissionsBitField, ChannelType, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
 let config = require('./Config/config.json');
+let dictionary = require('./lang/dictionary.json');
+// const messages = CreateEmbedBuilder();
+const buttons = CreateButtons();
+const filter = async (i) => 
+    i.customId === 'createticket' ||
+    i.customId === 'closeticket';
 /*{
     // console.log(interaction.options.get('number').value); // вывод второво параметка который передаёт пользователь
 }*/
 
-function CreateEmbedBuilder()
+function getLangCategory(i)
 {
-    const message = new EmbedBuilder()
-        .setColor('#FA747D')
-        .setTitle("Тикеты")
-        .setAuthor({name: 'Поддержка'})
-        .setTitle('Создайте тикет для связи с администрацией')
-        .setDescription(`Для этого кликните на кнопку под сообщением`)
-    return message;
+    let LangText = '';
+    switch (i) 
+    {
+        case config.id_category_ticket_ru:
+            LangText = 'ru';
+            break;
+
+        default:
+            LangText = 'en';
+            break;
+    }
+
+    return LangText;
 }
 
-function CreateButtons()
+function lang_text(i) {
+    let LangText = '';
+    switch (i) 
+    {
+        case config.channel_ru_ticket_id:
+            LangText = 'ru';
+            break;
+
+        default:
+            LangText = 'en';
+            break;
+    }
+
+    return LangText;
+}
+
+function lang_category(i) {
+    let category = '';
+    switch (i.channel.id) {
+        case config.channel_ru_ticket_id:
+            category = config.id_category_ticket_ru;
+            break;
+
+        default:
+            category = config.id_category_ticket_en;
+            break;
+    }
+
+    return category;
+}
+
+function create_blockInfo_ticket(id_channel) {
+    setTimeout(() => {
+        const channel = client.channels.cache.get(id_channel);
+
+        // let messages = CreateEmbedBuilder(lang_text(id_channel));
+        // let buttons = CreateButtons(lang_text(id_channel));
+        // channel.send({embeds: [messages.message_1], components: [new ActionRowBuilder().addComponents(buttons.button_1)]}); // отправлять сообщение в чат
+       
+        const collector = channel.createMessageComponentCollector({filter});
+        const guild = client.guilds.cache.get(config.Guild_id);
+        
+        collector.on('collect', async i => {
+            if (i.customId === 'createticket') {
+                createTicket(guild, i, lang_category(i));
+            }
+        });
+
+        console.log(`"create" button in chat "${channel.name}" restarted`);
+    }, 10000);
+}
+
+function buffery() {
+    let Buffery = config.count_ticket;
+    while(Buffery.toString().length < 4)
+    {
+        Buffery = '0' + Buffery;
+    }
+    return Buffery;
+}
+
+function closeTicket(guild, new_channel, i_new, Buffery, mess) {
+    new_channel.edit({
+        // name: `${dictionary.ru.channel_closed_ticket_name}${Buffery}`,
+        name: `${(getLangCategory(i_new.channel.parentId) == 'ru') ? (dictionary.ru.channel_closed_ticket_name) : (dictionary.eu.channel_closed_ticket_name)}${Buffery}`,
+        permissionOverwrites: [
+            {
+                id: guild.roles.everyone,
+                deny: [
+                    PermissionsBitField['Flags'].ManageChannels,
+                    PermissionsBitField['Flags'].CreateInstantInvite,
+                    PermissionsBitField['Flags'].ChangeNickname,
+                    PermissionsBitField['Flags'].SendTTSMessages,
+                    PermissionsBitField['Flags'].SendMessagesInThreads,
+                    PermissionsBitField['Flags'].UseApplicationCommands,
+                    PermissionsBitField['Flags'].SendMessages,
+                    PermissionsBitField['Flags'].ReadMessageHistory,
+                    PermissionsBitField['Flags'].ViewChannel,
+                    PermissionsBitField['Flags'].MentionEveryone
+                ]
+            },
+            {
+                id: config.id_bot,
+                allow: [
+                    PermissionsBitField['Flags'].ViewChannel,
+                    PermissionsBitField['Flags'].ReadMessageHistory,
+                    PermissionsBitField['Flags'].SendMessages
+                ]
+            }
+        ],
+        parent: client.channels.cache.find(ct => ct.name.startsWith(config.name_category_close_ticket)).id,
+    })
+
+
+    i_new.reply({content: `${i_new.user} ${(getLangCategory(i_new.channel.parentId) == 'ru') ? (dictionary.ru.content_close_ticket) : (dictionary.eu.content_close_ticket)} #${Buffery}`});
+    mess.then(test => test.delete())
+}
+
+function createTicket(guild, i, category_id) {
+    let Buffery = buffery();
+    return guild.channels.create({
+        name: `${(lang_text(i.channel.id) == 'ru') ? (dictionary.ru.channel_ticket_name) : (dictionary.eu.channel_ticket_name)}${Buffery}`,
+        type: ChannelType.GuildText,
+        permissionOverwrites: [
+            {
+                id: guild.roles.everyone,
+                deny: [
+                    PermissionsBitField['Flags'].ManageChannels,
+                    PermissionsBitField['Flags'].CreateInstantInvite,
+                    PermissionsBitField['Flags'].ChangeNickname,
+                    PermissionsBitField['Flags'].SendTTSMessages,
+                    PermissionsBitField['Flags'].SendMessagesInThreads,
+                    PermissionsBitField['Flags'].UseApplicationCommands,
+                    PermissionsBitField['Flags'].SendMessages,
+                    PermissionsBitField['Flags'].ReadMessageHistory,
+                    PermissionsBitField['Flags'].ViewChannel,
+                    PermissionsBitField['Flags'].MentionEveryone
+                ]
+            },
+            {
+                id: i.user.id,
+                allow: [
+                    PermissionsBitField['Flags'].UseApplicationCommands,
+                    PermissionsBitField['Flags'].SendMessages,
+                    PermissionsBitField['Flags'].ReadMessageHistory,
+                    PermissionsBitField['Flags'].ViewChannel
+                ],
+                deny: [
+                    PermissionsBitField['Flags'].ManageChannels,
+                    PermissionsBitField['Flags'].CreateInstantInvite,
+                    PermissionsBitField['Flags'].ChangeNickname,
+                    PermissionsBitField['Flags'].SendTTSMessages,
+                    PermissionsBitField['Flags'].SendMessagesInThreads,
+                    PermissionsBitField['Flags'].MentionEveryone
+                ]
+            },
+            {
+                id: config.id_bot,
+                allow: [
+                    PermissionsBitField['Flags'].ViewChannel,
+                    PermissionsBitField['Flags'].ReadMessageHistory,
+                    PermissionsBitField['Flags'].SendMessages
+                ]
+            },
+            {
+                id: guild.roles.cache.get(config.ticket_admin_ru).id,
+                allow: [
+                    PermissionsBitField['Flags'].ViewChannel,
+                    PermissionsBitField['Flags'].ReadMessageHistory,
+                    PermissionsBitField['Flags'].SendMessages
+                ],
+                deny: [
+                    PermissionsBitField['Flags'].CreateInstantInvite,
+                    PermissionsBitField['Flags'].ChangeNickname,
+                    PermissionsBitField['Flags'].MentionEveryone
+                ]
+            }
+        ],
+        parent: lang_category(i),
+        }).then(new_channel => {
+            i.reply({content: `${(lang_text(i.channel.id) == 'ru') ? (dictionary.ru.content_create_ticket) : (dictionary.eu.content_create_ticket)} <#${new_channel.id}>`, ephemeral: true})
+            config.count_ticket++;
+            Rewriting(config);
+
+            let mes = CreateEmbedBuilder(lang_text(i.channel.id));
+            let but = CreateButtons(lang_text(i.channel.id));
+            const mess = new_channel.send({embeds: [mes.message_2], components: [new ActionRowBuilder().addComponents(but.button_2)], ephemeral: true});
+
+            const new_collector = new_channel.createMessageComponentCollector({filter});
+
+            new_collector.on('collect', async i_new => {
+                if (i_new.customId == 'closeticket') {
+                    closeTicket(guild, new_channel, i_new, Buffery, mess);
+                }
+            })
+        })
+        .catch(console.error);
+}
+
+function CreateEmbedBuilder(lang)
+{
+        const message_1 = new EmbedBuilder()
+        .setColor('#FA747D')
+        .setTitle((lang == 'ru') ? (dictionary.ru.embed_builder.message_1.title_main) : (dictionary.eu.embed_builder.message_1.title_main)) 
+        .setAuthor({name: (lang == 'ru') ? (dictionary.ru.embed_builder.message_1.author) : (dictionary.eu.embed_builder.message_1.author)})
+        .setTitle((lang == 'ru') ? (dictionary.ru.embed_builder.message_1.title_additional) : (dictionary.eu.embed_builder.message_1.title_additional))
+        .setDescription((lang == 'ru') ? (dictionary.ru.embed_builder.message_1.description) : (dictionary.eu.embed_builder.message_1.description))
+
+
+         const message_2 = new EmbedBuilder()
+            .setColor('#FA747D')
+            .setTitle((lang == 'ru') ? (dictionary.ru.embed_builder.message_2.title_main) : (dictionary.eu.embed_builder.message_2.title_main)) 
+            .setAuthor({name: (lang == 'ru') ? (dictionary.ru.embed_builder.message_2.author) : (dictionary.eu.embed_builder.message_2.author)})
+            .setTitle((lang == 'ru') ? (dictionary.ru.embed_builder.message_2.title_additional) : (dictionary.eu.embed_builder.message_2.title_additional))
+            .setDescription((lang == 'ru') ? (dictionary.ru.embed_builder.message_2.description) : (dictionary.eu.embed_builder.message_2.description))
+    
+    return {message_1, message_2};
+}
+
+function CreateButtons(lang)
 {
     const button_1 = new ButtonBuilder()
-        .setCustomId('createticket')
-        .setLabel("создать тикет")
+        // .setCustomId((lang == 'ru') ? (dictionary.ru.buttons.button_1.id) : ())
+        .setCustomId((lang == 'ru') ? (dictionary.ru.buttons.button_1.id) : (dictionary.eu.buttons.button_1.id))
+        .setLabel((lang == 'ru') ? (dictionary.ru.buttons.button_1.label) : (dictionary.eu.buttons.button_1.label))
+        .setStyle(ButtonStyle.Success)
+        .setEmoji((lang == 'ru') ? (dictionary.ru.buttons.button_1.emoji) : (dictionary.eu.buttons.button_1.emoji))
+
+
+    const button_2 = new ButtonBuilder()
+        .setCustomId((lang == 'ru') ? (dictionary.ru.buttons.button_2.id) : (dictionary.eu.buttons.button_2.id))
+        .setLabel((lang == 'ru') ? (dictionary.ru.buttons.button_2.label) : (dictionary.eu.buttons.button_2.label))
         .setStyle(ButtonStyle.Danger)
-        .setEmoji('🖊️')
-    return button_1;
+        .setEmoji((lang == 'ru') ? (dictionary.ru.buttons.button_2.emoji) : (dictionary.eu.buttons.button_2.emoji))
+
+    return {button_1, button_2};
 }
 
 function checkRole(interaction) 
@@ -40,180 +260,20 @@ function checkRole(interaction)
     return 0;
 }
 
-const commands = [
-    {
-        name: 'ticket',
-        description: 'Создать тикерт',
-        description_localizations: {'ru': "Создать тикерт", 'en-US': "Создать тикерт"},
-    }
-];
 
-const rest = new REST({ version: '10' }).setToken(config.Token);
+
 
 (async () => {
     try {
-        console.log('Начал обновлять команды приложения (/).');
-        await rest.put(Routes.applicationCommands(config.id_bot), { body: commands });
-        console.log('Успешно перезагружено приложение (/) команды.');
-        setTimeout(() => {
-            const channel = client.channels.cache.get("1056178099127058442");
-            const message = CreateEmbedBuilder();
-            const button_1 = CreateButtons();
-            channel.send({embeds: [message], components: [new ActionRowBuilder().addComponents(button_1)], ephemeral: true});
-        }, 15000);
-
-        // setTimeout(PizdaHuy(), 15000);
-        
+        create_blockInfo_ticket(config.channel_ru_ticket_id);
+        create_blockInfo_ticket(config.channel_en_ticket_id);
     } catch (error) {
       console.error(error);
     }
 })();
 
 client.on('ready', async () => {
-    console.log(`Бот авторизировался как ${client.user.tag}!`);
-});
-
-
-client.on('interactionCreate', async (interaction) => {
-    if (!interaction.isChatInputCommand()) return;
-    // console.log('Dvij');
-    // console.log(interaction);
-
-    const guild = client.guilds.cache.get(config.Guild_id);
-    const channel_ru = guild.channels.cache.get(config.channel_ru_ticket_id);
-    try {
-        if(checkRole(interaction)){
-            if (interaction.commandName === 'ticket') {
-                // const message = new EmbedBuilder()
-                //     .setColor('#FA747D')
-                //     .setTitle("Тикеты")
-                //     .setAuthor({name: 'Поддержка'})
-                //     .setTitle('Создайте тикет для связи с администрацией')
-                //     .setDescription(`
-                //         Для этого кликните на кнопку под сообщением
-                //     `)
-
-                // const button_1 = new ButtonBuilder()
-                //     .setCustomId('createticket')
-                //     .setLabel("создать тикет")
-                //     .setStyle(ButtonStyle.Danger)
-                //     .setEmoji('📥')
-                const message = CreateEmbedBuilder();
-                const button_1 = CreateButtons();
-                interaction.reply({embeds: [message], components: [new ActionRowBuilder().addComponents(button_1)], ephemeral: true});
-
-            }
-        }else{
-            await interaction.reply({content: `У вас нету доступа к этой команде!`, ephemeral: true});
-        }
-
-        if (!interaction.isButton()) {
-            const filter = i => i.customId === 'createticket' && i.customId === 'closeticket';
-
-            const collector = interaction.channel.createMessageComponentCollector({filter});
-
-            collector.on('collect', async i => {
-                if (i.customId === 'createticket') {
-                    let Buffery = config.count_ticket;
-                    while(Buffery.toString().length < 4)
-                    {
-                        Buffery = '0' + Buffery;
-                    }
-
-                    guild.channels.create({
-                        name: `Тикет-#${Buffery}`,
-                        type: ChannelType.GuildText,
-                        permissionOverwrites: [
-                            {
-                                id: guild.roles.everyone,
-                                deny: [
-                                    PermissionsBitField['Flags'].ManageChannels,
-                                    PermissionsBitField['Flags'].CreateInstantInvite,
-                                    PermissionsBitField['Flags'].ChangeNickname,
-                                    PermissionsBitField['Flags'].SendTTSMessages,
-                                    PermissionsBitField['Flags'].SendMessagesInThreads,
-                                    PermissionsBitField['Flags'].UseApplicationCommands,
-                                    PermissionsBitField['Flags'].SendMessages,
-                                    PermissionsBitField['Flags'].ReadMessageHistory,
-                                    PermissionsBitField['Flags'].ViewChannel,
-                                    PermissionsBitField['Flags'].MentionEveryone
-                                ]
-                            },
-                            {
-                                id: i.user.id,
-                                allow: [
-                                    PermissionsBitField['Flags'].UseApplicationCommands,
-                                    PermissionsBitField['Flags'].SendMessages,
-                                    PermissionsBitField['Flags'].ReadMessageHistory,
-                                    PermissionsBitField['Flags'].ViewChannel
-                                ],
-                                deny: [
-                                    PermissionsBitField['Flags'].ManageChannels,
-                                    PermissionsBitField['Flags'].CreateInstantInvite,
-                                    PermissionsBitField['Flags'].ChangeNickname,
-                                    PermissionsBitField['Flags'].SendTTSMessages,
-                                    PermissionsBitField['Flags'].SendMessagesInThreads,
-                                    PermissionsBitField['Flags'].MentionEveryone
-                                ]
-                            },
-                            {
-                                id: config.id_bot,
-                                allow: [
-                                    PermissionsBitField['Flags'].ViewChannel,
-                                    PermissionsBitField['Flags'].ReadMessageHistory,
-                                    PermissionsBitField['Flags'].SendMessages
-                                ]
-                            },
-                            {
-                                id: guild.roles.cache.get(config.ticket_admin_ru).id,
-                                allow: [
-                                    PermissionsBitField['Flags'].ViewChannel,
-                                    PermissionsBitField['Flags'].ReadMessageHistory,
-                                    PermissionsBitField['Flags'].SendMessages
-                                ],
-                                deny: [
-                                    PermissionsBitField['Flags'].CreateInstantInvite,
-                                    PermissionsBitField['Flags'].ChangeNickname,
-                                    PermissionsBitField['Flags'].MentionEveryone
-                                ]
-                            }
-                        ],
-                        parent: client.channels.cache.find(ct => ct.name.startsWith("тест категория")).id,
-                      })
-                      .then(new_channel => {
-                        i.reply({content: `Ваш чат ${new_channel.name} создан`, ephemeral: true})
-                        config.count_ticket++;
-                        Rewriting(config);
-
-
-                        const message = new EmbedBuilder()
-                        .setColor('#FA747D')
-                        .setTitle("Тикеты")
-                        .setAuthor({name: 'Поддержка'})
-                        .setTitle('Закрыть тикет')
-                        .setDescription(`Нажмите на кнопку чтобы закрыть тикет`)
-
-                        const button_2 = new ButtonBuilder()
-                            .setCustomId('closeticket')
-                            .setLabel("закрыть тикет")
-                            .setStyle(ButtonStyle.Success)
-                            .setEmoji('❌')
-
-                        new_channel.send({embeds: [message], components: [new ActionRowBuilder().addComponents(button_2)]});
-                        
-                      })
-                      .catch(console.error);
-                } else if (i.customId === 'closeticket') {
-                    console.log('закрыл тикет');
-                }
-            })
-
-
-        }
-    } catch (error) {
-        console.error(error);
-    }
-    
+    console.log(`Bot logged in as ${client.user.tag}!`);
 });
 
 client.login(config.Token);

@@ -1,0 +1,84 @@
+{
+    "ru": 
+    {
+        "channel_ticket_name": "Тикет-",
+        "channel_closed_ticket_name": "Закрыт-",
+        "close_ticket": "Закрыть тикет",
+        "create_ticket": "Создать тикет",
+        "content_close_ticket": "Закрыл тикет с номером",
+        "content_create_ticket": "Создан тикет с номером",
+        "embed_builder": 
+        {
+            "message_1": 
+            {
+                "title_main": "Тикеты",
+                "author": "Поддержка",
+                "title_additional": "Создайте тикет для связи с администрацией",
+                "description": "Нажмите на кнопку для создания тикета"
+            },
+            "message_2": 
+            {
+                "title_main": "Тикеты",
+                "author": "Поддержка",
+                "title_additional": "Закрыть тикет",
+                "description": "Нажмите на кнопку чтобы закрыть тикет"
+            }
+        },
+        "buttons":
+        {
+            "button_1": 
+            {
+                "id": "createticket",
+                "label":"Создать тикет",
+                "emoji":"🛠️"
+            },
+            "button_2": 
+            {
+                "id": "closeticket",
+                "label":"Закрыть тикет",
+                "emoji":"🔐"
+            }
+        }
+    },
+    "eu": 
+    {
+        "channel_ticket_name": "ticket-",
+        "channel_closed_ticket_name": "closed-",
+        "close_ticket": "Close ticket",
+        "create_ticket": "Create a ticket",
+        "content_close_ticket": "Closed ticket number",
+        "content_create_ticket": "Ticket created number",
+        "embed_builder": 
+        {
+            "message_1": 
+            {
+                "title_main": "tickets",
+                "author": "Support",
+                "title_additional": "Create a ticket to contact the administration",
+                "description": "Click on the button to create a ticket"
+            },
+            "message_2": 
+            {
+                "title_main": "tickets",
+                "author": "Support",
+                "title_additional": "Close ticket",
+                "description": "Click on the button to close ticket"
+            }
+        },
+        "buttons":
+        {
+            "button_1": 
+            {
+                "id": "createticket",
+                "label":"Create ticket",
+                "emoji":"🛠️"
+            },
+            "button_2": 
+            {
+                "id": "closeticket",
+                "label":"Close ticket",
+                "emoji":"🔐"
+            }
+        }
+    }
+}
