@@ -13,5 +13,10 @@
     "name_category_close_ticket": "Закрытые тикеты",
     "ticket_admin_ru": "1056225570674970624",
     "ticket_admin_en": "1056225570674970624",
+    "get_role_channel_id" : "1055943307630481510",
+    "add_role_one" : "1056176451776430200",
+    "add_role_two" : "1055942316654854286",
+    "add_role_three" : "1056176607561265173",
+    "add_role_four" : "1055942381414924359",
     "count_ticket": 17
 }
