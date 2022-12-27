@@ -8,7 +8,11 @@ let dictionary = require('./lang/dictionary.json');
 const buttons = CreateButtons();
 const filter = async (i) => 
     i.customId === 'createticket' ||
-    i.customId === 'closeticket';
+    i.customId === 'closeticket' ||
+    i.customId === 'role_one' || 
+    i.customId === 'role_two' ||
+    i.customId === 'role_three' ||
+    i.customId === 'role_four';
 /*{
     // console.log(interaction.options.get('number').value); // вывод второво параметка который передаёт пользователь
 }*/
@@ -196,7 +200,7 @@ function createTicket(guild, i, category_id) {
 
             let mes = CreateEmbedBuilder(lang_text(i.channel.id));
             let but = CreateButtons(lang_text(i.channel.id));
-            const mess = new_channel.send({embeds: [mes.message_2], components: [new ActionRowBuilder().addComponents(but.button_2)], ephemeral: true});
+            const mess = new_channel.send({embeds: [mes.message_2], components: [new ActionRowBuilder().addComponents(but.button_2)]});
 
             const new_collector = new_channel.createMessageComponentCollector({filter});
 
@@ -260,7 +264,129 @@ function checkRole(interaction)
     return 0;
 }
 
+function role_add() {
+    const channel = client.channels.cache.get(config.get_role_channel_id);
+    
+    const message_1 = new EmbedBuilder()
+        .setColor('#C70039')
+        .setTitle('Приветствуем в дискорд сервере Турнирной платформы SDTV.GG') 
+        // .setAuthor('SDTV.GG')
+        .setDescription('Нажимай на кнопки для получение ролей.')
 
+
+    const button_1 = new ButtonBuilder()
+        .setCustomId('role_one')
+        .setLabel('EU | Tournament')
+        .setStyle(ButtonStyle.Secondary)
+
+    const button_2 = new ButtonBuilder()
+        .setCustomId('role_two')
+        .setLabel('RU | Tournament')
+        .setStyle(ButtonStyle.Secondary)
+
+    const button_3 = new ButtonBuilder()
+        .setCustomId('role_three')
+        .setLabel('EU | GameServers')
+        .setStyle(ButtonStyle.Success)
+
+    const button_4 = new ButtonBuilder()
+        .setCustomId('role_four')
+        .setLabel('RU | GameServers')
+        .setStyle(ButtonStyle.Success)
+
+    const new_collector = channel.createMessageComponentCollector({filter});
+
+    new_collector.on('collect', async i_new => {
+        const guild = client.guilds.cache.get(config.Guild_id);
+        if (i_new.customId == 'role_one') {
+            // Тут функция выдачи роли или её забирания, Жека допиши я вмер.
+
+            // // if (i_new.member.roles) {
+            //     i_new.member.roles.add(guild.roles.cache.get(config.add_role_test));
+            // // }
+            const name_role = guild.roles.cache.get(config.add_role_one).name;
+            let bBool = false;
+            for(let i = 0; i < i_new.member._roles.length; i++)
+            {
+                if(i_new.member._roles[i] == config.add_role_one) 
+                {
+                    i_new.member.roles.remove(guild.roles.cache.get(config.add_role_one));
+                    i_new.reply({content: `Роль ${name_role} была удалена`, ephemeral: true})
+                    bBool = true; break;
+                }
+            }
+            if(bBool == false)
+            {
+                i_new.member.roles.add(guild.roles.cache.get(config.add_role_one));
+                i_new.reply({content: `Роль ${name_role} была добавлена`, ephemeral: true})
+            }
+        }
+        if (i_new.customId == 'role_two') {
+            // Тут функция выдачи роли или её забирания, Жека допиши я вмер.
+
+            // // if (i_new.member.roles) {
+            //     i_new.member.roles.add(guild.roles.cache.get(config.add_role_test));
+            // // }
+            const name_role = guild.roles.cache.get(config.add_role_two).name;
+
+            let bBool = false;
+            for(let i = 0; i < i_new.member._roles.length; i++)
+            {
+                if(i_new.member._roles[i] == config.add_role_two) 
+                {
+                    i_new.member.roles.remove(guild.roles.cache.get(config.add_role_two));
+                    i_new.reply({content: `Роль ${name_role} была удалена`, ephemeral: true})
+                    bBool = true; break;
+                }
+            }
+            if(bBool == false)
+            {
+                i_new.member.roles.add(guild.roles.cache.get(config.add_role_two));
+                i_new.reply({content: `Роль ${name_role} была добавлена`, ephemeral: true})
+            }
+        }
+        if (i_new.customId == 'role_three') {
+            const name_role = guild.roles.cache.get(config.add_role_three).name;
+            let bBool = false;
+            for(let i = 0; i < i_new.member._roles.length; i++)
+            {
+                if(i_new.member._roles[i] == config.add_role_three) 
+                {
+                    i_new.member.roles.remove(guild.roles.cache.get(config.add_role_three));
+                    i_new.reply({content: `Роль ${name_role} была удалена`, ephemeral: true})
+                    bBool = true; break;
+                }
+            }
+            if(bBool == false)
+            {
+                i_new.member.roles.add(guild.roles.cache.get(config.add_role_three));
+                i_new.reply({content: `Роль ${name_role} была добавлена`, ephemeral: true})
+            }
+        }
+        if (i_new.customId == 'role_four') 
+        {
+            let bBool = false;
+            const name_role = guild.roles.cache.get(config.add_role_three).name;
+            for(let i = 0; i < i_new.member._roles.length; i++)
+            {
+                if(i_new.member._roles[i] == config.add_role_four) 
+                {
+                    i_new.member.roles.remove(guild.roles.cache.get(config.add_role_four));
+                    i_new.reply({content: `Роль ${name_role} была удалена`, ephemeral: true})
+                    bBool = true; break;
+                }
+            }
+            if(bBool == false)
+            {
+                i_new.member.roles.add(guild.roles.cache.get(config.add_role_four));
+                i_new.reply({content: `Роль ${name_role} была добавлена`, ephemeral: true})
+            }
+        }
+    })
+        
+    channel.send({embeds: [message_1], components: [new ActionRowBuilder().addComponents(button_1, button_2, button_3, button_4)]});
+    
+}
 
 
 (async () => {
@@ -268,12 +394,13 @@ function checkRole(interaction)
         create_blockInfo_ticket(config.channel_ru_ticket_id);
         create_blockInfo_ticket(config.channel_en_ticket_id);
     } catch (error) {
-      console.error(error);
+        console.error(error);
     }
 })();
 
 client.on('ready', async () => {
     console.log(`Bot logged in as ${client.user.tag}!`);
+    role_add();
 });
 
 client.login(config.Token);
