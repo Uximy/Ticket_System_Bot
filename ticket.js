@@ -198,9 +198,9 @@ function createTicket(guild, i, category_id) {
             let mes = CreateEmbedBuilder(lang_text(i.channel.id));
             let but = CreateButtons(lang_text(i.channel.id));
             const mess = new_channel.send({embeds: [mes.message_2], components: [new ActionRowBuilder().addComponents(but.button_2)]});
-
+            new_channel.send({content: (lang_text(i.channel.id) == 'ru') ? (dictionary.ru.content_please_question) : (dictionary.eu.content_please_question)});
             const new_collector = new_channel.createMessageComponentCollector({filter});
-
+            
             new_collector.on('collect', async i_new => {
                 if (i_new.customId == 'closeticket') {
                     closeTicket(guild, new_channel, i_new, Buffery, mess);
@@ -271,6 +271,7 @@ function role_add()
         // .setAuthor('SDTV.GG')
         .setDescription('Приветствуем в дискорд сервере Турнирной платформы SDTV.GG\nWelcome to the discord server of the SDTV.GG Tournament Platform')
         // .addFields({ value: 'Нажимай на кнопки для получение ролей.', inline: true }, { value: 'Click on the buttons to get roles', inline: true })
+        .setFooter({ text: 'Для получения ролей нажмите по кнопке с названием, аналогично и для удаления\nTo get roles, click on the button with the name, similarly for deleting'})
 
     let BufferyArray = [];
     for(let i = 0; i < role_config.length; i++)
