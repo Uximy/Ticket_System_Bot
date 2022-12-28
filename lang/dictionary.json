@@ -6,7 +6,8 @@
         "close_ticket": "Закрыть тикет",
         "create_ticket": "Создать тикет",
         "content_close_ticket": "Закрыл тикет с номером",
-        "content_create_ticket": "Создан тикет с номером",
+        "content_create_ticket": "Ваш тикет с номером создан, нажмите чтобы перейти в чат",
+        "content_please_question" : "Напишите пожалуйста ваш интересующий вопрос.",
         "embed_builder": 
         {
             "message_1": 
@@ -47,7 +48,8 @@
         "close_ticket": "Close ticket",
         "create_ticket": "Create a ticket",
         "content_close_ticket": "Closed ticket number",
-        "content_create_ticket": "Ticket created number",
+        "content_create_ticket": "Your ticket with the number has been created, click to go to the chat",
+        "content_please_question" : "Please write your interesting question.",
         "embed_builder": 
         {
             "message_1": 
