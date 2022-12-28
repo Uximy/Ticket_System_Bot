@@ -1,0 +1,6 @@
+[
+    {"role_id": "1056176451776430200", "role_name": "EU | Tournament", "custom_id": "role_one"},
+    {"role_id": "1055942316654854286", "role_name": "RU | Tournament", "custom_id": "role_two"},
+    {"role_id": "1056176607561265173", "role_name": "EU | GameServers", "custom_id": "role_three"},
+    {"role_id": "1055942381414924359", "role_name": "RU | GameServers", "custom_id": "role_four"}
+]

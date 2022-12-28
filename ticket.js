@@ -4,15 +4,12 @@ const { Client, GatewayIntentBits, PermissionsBitField, ChannelType, EmbedBuilde
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
 let config = require('./Config/config.json');
 let dictionary = require('./lang/dictionary.json');
+const role_config = require('./BotRole.json');
 // const messages = CreateEmbedBuilder();
 const buttons = CreateButtons();
 const filter = async (i) => 
     i.customId === 'createticket' ||
-    i.customId === 'closeticket' ||
-    i.customId === 'role_one' || 
-    i.customId === 'role_two' ||
-    i.customId === 'role_three' ||
-    i.customId === 'role_four';
+    i.customId === 'closeticket';
 /*{
     // console.log(interaction.options.get('number').value); // вывод второво параметка который передаёт пользователь
 }*/
@@ -264,127 +261,76 @@ function checkRole(interaction)
     return 0;
 }
 
-function role_add() {
+function role_add() 
+{
     const channel = client.channels.cache.get(config.get_role_channel_id);
     
-    const message_1 = new EmbedBuilder()
+    const RoleGiveMessage = new EmbedBuilder()
         .setColor('#C70039')
-        .setTitle('Приветствуем в дискорд сервере Турнирной платформы SDTV.GG') 
+        .setTitle('Выдача ролей | Getting Roles') 
         // .setAuthor('SDTV.GG')
-        .setDescription('Нажимай на кнопки для получение ролей.')
+        .setDescription('Приветствуем в дискорд сервере Турнирной платформы SDTV.GG\nWelcome to the discord server of the SDTV.GG Tournament Platform')
+        // .addFields({ value: 'Нажимай на кнопки для получение ролей.', inline: true }, { value: 'Click on the buttons to get roles', inline: true })
 
+    let BufferyArray = [];
+    for(let i = 0; i < role_config.length; i++)
+    {
+        BufferyArray[i] = new ButtonBuilder()
+            .setCustomId(role_config[i].custom_id)
+            .setLabel(role_config[i].role_name)
+            .setStyle(ButtonStyle.Secondary)
+    }
 
-    const button_1 = new ButtonBuilder()
-        .setCustomId('role_one')
-        .setLabel('EU | Tournament')
-        .setStyle(ButtonStyle.Secondary)
-
-    const button_2 = new ButtonBuilder()
-        .setCustomId('role_two')
-        .setLabel('RU | Tournament')
-        .setStyle(ButtonStyle.Secondary)
-
-    const button_3 = new ButtonBuilder()
-        .setCustomId('role_three')
-        .setLabel('EU | GameServers')
-        .setStyle(ButtonStyle.Success)
-
-    const button_4 = new ButtonBuilder()
-        .setCustomId('role_four')
-        .setLabel('RU | GameServers')
-        .setStyle(ButtonStyle.Success)
-
-    const new_collector = channel.createMessageComponentCollector({filter});
-
-    new_collector.on('collect', async i_new => {
-        const guild = client.guilds.cache.get(config.Guild_id);
-        if (i_new.customId == 'role_one') {
-            // Тут функция выдачи роли или её забирания, Жека допиши я вмер.
-
-            // // if (i_new.member.roles) {
-            //     i_new.member.roles.add(guild.roles.cache.get(config.add_role_test));
-            // // }
-            const name_role = guild.roles.cache.get(config.add_role_one).name;
-            let bBool = false;
-            for(let i = 0; i < i_new.member._roles.length; i++)
-            {
-                if(i_new.member._roles[i] == config.add_role_one) 
-                {
-                    i_new.member.roles.remove(guild.roles.cache.get(config.add_role_one));
-                    i_new.reply({content: `Роль ${name_role} была удалена`, ephemeral: true})
-                    bBool = true; break;
-                }
-            }
-            if(bBool == false)
-            {
-                i_new.member.roles.add(guild.roles.cache.get(config.add_role_one));
-                i_new.reply({content: `Роль ${name_role} была добавлена`, ephemeral: true})
-            }
-        }
-        if (i_new.customId == 'role_two') {
-            // Тут функция выдачи роли или её забирания, Жека допиши я вмер.
-
-            // // if (i_new.member.roles) {
-            //     i_new.member.roles.add(guild.roles.cache.get(config.add_role_test));
-            // // }
-            const name_role = guild.roles.cache.get(config.add_role_two).name;
-
-            let bBool = false;
-            for(let i = 0; i < i_new.member._roles.length; i++)
-            {
-                if(i_new.member._roles[i] == config.add_role_two) 
-                {
-                    i_new.member.roles.remove(guild.roles.cache.get(config.add_role_two));
-                    i_new.reply({content: `Роль ${name_role} была удалена`, ephemeral: true})
-                    bBool = true; break;
-                }
-            }
-            if(bBool == false)
-            {
-                i_new.member.roles.add(guild.roles.cache.get(config.add_role_two));
-                i_new.reply({content: `Роль ${name_role} была добавлена`, ephemeral: true})
-            }
-        }
-        if (i_new.customId == 'role_three') {
-            const name_role = guild.roles.cache.get(config.add_role_three).name;
-            let bBool = false;
-            for(let i = 0; i < i_new.member._roles.length; i++)
-            {
-                if(i_new.member._roles[i] == config.add_role_three) 
-                {
-                    i_new.member.roles.remove(guild.roles.cache.get(config.add_role_three));
-                    i_new.reply({content: `Роль ${name_role} была удалена`, ephemeral: true})
-                    bBool = true; break;
-                }
-            }
-            if(bBool == false)
-            {
-                i_new.member.roles.add(guild.roles.cache.get(config.add_role_three));
-                i_new.reply({content: `Роль ${name_role} была добавлена`, ephemeral: true})
-            }
-        }
-        if (i_new.customId == 'role_four') 
+    const role_filter = async (i) => 
+    {
+        for(let j = 0; j < role_config; j++)
         {
-            let bBool = false;
-            const name_role = guild.roles.cache.get(config.add_role_three).name;
-            for(let i = 0; i < i_new.member._roles.length; i++)
+            if(i.customId === role_config[j].custom_Id) return true; 
+        }
+    };
+
+    const new_collector = channel.createMessageComponentCollector({role_filter});
+
+    new_collector.on('collect', async i_new => 
+    {
+        const guild = client.guilds.cache.get(config.Guild_id);
+        new_collector.on('collect', async i_new => 
+        {
+            
+            const guild = client.guilds.cache.get(config.Guild_id);
+            for(let i = 0; i < role_config.length; i++)
             {
-                if(i_new.member._roles[i] == config.add_role_four) 
+                if (i_new.customId == role_config[i].custom_id)
                 {
-                    i_new.member.roles.remove(guild.roles.cache.get(config.add_role_four));
-                    i_new.reply({content: `Роль ${name_role} была удалена`, ephemeral: true})
-                    bBool = true; break;
+                    const name_role = guild.roles.cache.get(role_config[i].role_id).name;
+                    let bBool = false;
+                    for(let j = 0; j < i_new.member._roles.length; j++)
+                    {
+                        if(i_new.member._roles[j] == role_config[i].role_id) 
+                        {
+                            i_new.member.roles.remove(guild.roles.cache.get(role_config[i].role_id));
+                            try
+                            {
+                                await i_new.reply({content: `Роль ${name_role} была удалена`, ephemeral: true})
+                            } catch {}
+                            bBool = true; break;
+                        }
+                    }
+                    if(bBool == false)
+                    {
+                        i_new.member.roles.add(guild.roles.cache.get(role_config[i].role_id));
+                        try
+                        {
+                            await i_new.reply({content: `Роль ${name_role} была добавлена`, ephemeral: true})
+                        } catch {}
+                    }
+                    break;
                 }
             }
-            if(bBool == false)
-            {
-                i_new.member.roles.add(guild.roles.cache.get(config.add_role_four));
-                i_new.reply({content: `Роль ${name_role} была добавлена`, ephemeral: true})
-            }
-        }
+        })
     })
-        
-    channel.send({embeds: [message_1], components: [new ActionRowBuilder().addComponents(button_1, button_2, button_3, button_4)]});
+
+    channel.send({embeds: [RoleGiveMessage], components: [new ActionRowBuilder().addComponents(...BufferyArray)]});
     
 }
 
@@ -403,9 +349,9 @@ client.on('ready', async () => {
     role_add();
 });
 
-client.login(config.Token);
-
 function Rewriting(newJson)
 {
     fs.writeFileSync('./Config/config.json', JSON.stringify(newJson));
 }
+
+client.login(config.Token);
