@@ -39,6 +39,21 @@
                 "label":"Закрыть тикет",
                 "emoji":"🔐"
             }
+        },
+
+        "give_role" : "Выдача ролей",
+        "hello_role" : "Приветствуем в дискорд сервере Турнирной платформы SDTV.GG\nДля получения ролей нажмите по кнопке с названием, аналогично и для удаления",
+
+        "remove_role_messages":
+        {
+            "message_1" : "Роль",
+            "message_2" : "была удалена"
+        },
+
+        "add_role_messages":
+        {
+            "message_1" : "Роль",
+            "message_2" : "была добавлена"
         }
     },
     "eu": 
@@ -81,6 +96,21 @@
                 "label":"Close ticket",
                 "emoji":"🔐"
             }
+        },
+
+        "give_role" : "Getting Roles",
+        "hello_role" : "Welcome to the discord server of the SDTV.GG Tournament Platform\nTo get roles, click on the button with the name, similarly for deleting",
+
+        "remove_role_messages":
+        {
+            "message_1" : "Role",
+            "message_2" : "has been removed"
+        },
+
+        "add_role_messages":
+        {
+            "message_1" : "Role",
+            "message_2" : "has been added"
         }
     }
 }
