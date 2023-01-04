@@ -1,11 +1,11 @@
-const {REST, Routes} = require('discord.js');
+const {REST, Routes, RPCCloseEventCodes} = require('discord.js');
 const fs = require('fs');
 const { Client, GatewayIntentBits, PermissionsBitField, ChannelType, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
 let config = require('./Config/config.json');
 let dictionary = require('./lang/dictionary.json');
 const role_config = require('./BotRole.json');
-// const messages = CreateEmbedBuilder();
+const lang_config = require('./LangButton.json');
 const buttons = CreateButtons();
 const filter = async (i) => 
     i.customId === 'createticket' ||
@@ -264,74 +264,112 @@ function checkRole(interaction)
 function role_add() 
 {
     const channel = client.channels.cache.get(config.get_role_channel_id);
-    
-    const RoleGiveMessage = new EmbedBuilder()
-        .setColor('#C70039')
-        .setTitle('Выдача ролей | Getting Roles') 
-        // .setAuthor('SDTV.GG')
-        .setDescription('Приветствуем в дискорд сервере Турнирной платформы SDTV.GG\nWelcome to the discord server of the SDTV.GG Tournament Platform')
-        // .addFields({ value: 'Нажимай на кнопки для получение ролей.', inline: true }, { value: 'Click on the buttons to get roles', inline: true })
-        .setFooter({ text: 'Для получения ролей нажмите по кнопке с названием, аналогично и для удаления\nTo get roles, click on the button with the name, similarly for deleting'})
 
-    let BufferyArray = [];
-    for(let i = 0; i < role_config.length; i++)
-    {
-        BufferyArray[i] = new ButtonBuilder()
-            .setCustomId(role_config[i].custom_id)
-            .setLabel(role_config[i].role_name)
-            .setStyle(ButtonStyle.Secondary)
-    }
+    let lang = '';
 
-    const role_filter = async (i) => 
+    const filter_lang = async (i) => 
     {
-        for(let j = 0; j < role_config; j++)
+        for(let j = 0; j < lang_config; j++)
         {
-            if(i.customId === role_config[j].custom_Id) return true; 
+            if(i.customId === lang_config[j].custom_Id) return true; 
         }
     };
 
-    const new_collector = channel.createMessageComponentCollector({role_filter});
+    const LanguageMessage = new EmbedBuilder()
+    .setColor('#C70039')
+    .setTitle('Выбери язык | Choose your language') 
 
-    new_collector.on('collect', async i_new => 
-    {
-        const guild = client.guilds.cache.get(config.Guild_id);
+
+    let LangBufferyArray = [];
+    for(let i = 0; i < lang_config.length; i++)
+    {   
+        LangBufferyArray[i] = new ButtonBuilder()
+            .setCustomId(lang_config[i].custom_id)
+            .setLabel(lang_config[i].role_name)
+            .setStyle(ButtonStyle.Secondary)
+            .setEmoji(lang_config[i].icon)
+    }
+
+    const controller_lang = channel.createMessageComponentCollector({filter_lang});
+
+    controller_lang.on('collect', async i_new_lang => {
+        switch (i_new_lang.customId) {
+            case 'ru':
+                lang = 'ru'; 
+                break;
+            case 'eu':
+                lang = 'eu'; 
+                break;
+        }
+
+        let BufferyArray = [];
+        for(let i = 0; i < role_config.length; i++)
+        {
+            BufferyArray[i] = new ButtonBuilder()
+                .setCustomId(role_config[i].custom_id)
+                .setLabel(role_config[i].role_name)
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji(role_config[i].icon)
+        }
+    
+        const RoleGiveMessage = new EmbedBuilder()
+        .setColor('#C70039')
+        .setTitle(lang == 'ru' ? (dictionary.ru.give_role) : (dictionary.eu.give_role)) 
+        .setDescription(lang == 'ru' ? (dictionary.ru.hello_role) : (dictionary.eu.hello_role))
+
+        if (i_new_lang.customId == 'ru') {
+            i_new_lang.reply({embeds: [RoleGiveMessage], components: [new ActionRowBuilder().addComponents(...BufferyArray)], ephemeral: true});
+        }
+        else if(i_new_lang.customId == 'eu'){
+            i_new_lang.reply({embeds: [RoleGiveMessage], components: [new ActionRowBuilder().addComponents(...BufferyArray)], ephemeral: true});
+        }
+    })
+    
+    // channel.send({embeds: [LanguageMessage], components: [new ActionRowBuilder().addComponents(...LangBufferyArray)]}); // ВЫВОД СООБЩЕНИЕ ВЫБОР ЯЗЫКА (СЛАВА ЭТО ВЫВОД СООБЩЕНИЕ ДЛЯ ВЫБОРА ЯЗЫКАААААААА)
+        
+        const role_filter = async (i) => 
+        {
+            for(let j = 0; j < role_config; j++)
+            {
+                if(i.customId === role_config[j].custom_Id) return true; 
+            }
+        };
+        
+        const new_collector = channel.createMessageComponentCollector({role_filter});
+        
         new_collector.on('collect', async i_new => 
         {
-            
-            const guild = client.guilds.cache.get(config.Guild_id);
-            for(let i = 0; i < role_config.length; i++)
+        const guild = client.guilds.cache.get(config.Guild_id);
+        for(let i = 0; i < role_config.length; i++)
+        {
+            if (i_new.customId == role_config[i].custom_id)
             {
-                if (i_new.customId == role_config[i].custom_id)
+                const name_role = guild.roles.cache.get(role_config[i].role_id).name;
+                let bBool = false;
+                for(let j = 0; j < i_new.member._roles.length; j++)
                 {
-                    const name_role = guild.roles.cache.get(role_config[i].role_id).name;
-                    let bBool = false;
-                    for(let j = 0; j < i_new.member._roles.length; j++)
+                    if(i_new.member._roles[j] == role_config[i].role_id) 
                     {
-                        if(i_new.member._roles[j] == role_config[i].role_id) 
-                        {
-                            i_new.member.roles.remove(guild.roles.cache.get(role_config[i].role_id));
-                            try
-                            {
-                                await i_new.reply({content: `Роль ${name_role} была удалена`, ephemeral: true})
-                            } catch {}
-                            bBool = true; break;
-                        }
-                    }
-                    if(bBool == false)
-                    {
-                        i_new.member.roles.add(guild.roles.cache.get(role_config[i].role_id));
+                        i_new.member.roles.remove(guild.roles.cache.get(role_config[i].role_id));
                         try
                         {
-                            await i_new.reply({content: `Роль ${name_role} была добавлена`, ephemeral: true})
+                            await i_new.reply({content: lang == 'ru' ? (`${dictionary.ru.remove_role_messages.message_1 + ' ' +name_role + ' ' + dictionary.ru.remove_role_messages.message_2 }`) : (`${dictionary.eu.remove_role_messages.message_1 + ' ' +name_role + ' ' + dictionary.eu.remove_role_messages.message_2 }`), ephemeral: true})
                         } catch {}
+                        bBool = true; break;
                     }
-                    break;
                 }
+                if(bBool == false)
+                {
+                    i_new.member.roles.add(guild.roles.cache.get(role_config[i].role_id));
+                    try
+                    {
+                        await i_new.reply({content: lang == 'ru' ? (`${dictionary.ru.add_role_messages.message_1 + ' ' +name_role + ' ' + dictionary.ru.add_role_messages.message_2 }`) : (`${dictionary.eu.add_role_messages.message_1 + ' ' +name_role + ' ' + dictionary.eu.add_role_messages.message_2 }`), ephemeral: true})
+                    } catch {}
+                }
+                break;
             }
-        })
+        }
     })
-
-    channel.send({embeds: [RoleGiveMessage], components: [new ActionRowBuilder().addComponents(...BufferyArray)]});
     
 }
 
