@@ -277,7 +277,7 @@ function role_add()
 
     const LanguageMessage = new EmbedBuilder()
     .setColor('#C70039')
-    .setTitle('Выбери язык | Choose your language') 
+    .setTitle('Выбери регион | Choose region') 
 
 
     let LangBufferyArray = [];
@@ -325,7 +325,7 @@ function role_add()
         }
     })
     
-    // channel.send({embeds: [LanguageMessage], components: [new ActionRowBuilder().addComponents(...LangBufferyArray)]}); // ВЫВОД СООБЩЕНИЕ ВЫБОР ЯЗЫКА (СЛАВА ЭТО ВЫВОД СООБЩЕНИЕ ДЛЯ ВЫБОРА ЯЗЫКАААААААА)
+    channel.send({embeds: [LanguageMessage], components: [new ActionRowBuilder().addComponents(...LangBufferyArray)]}); // ВЫВОД СООБЩЕНИЕ ВЫБОР ЯЗЫКА (СЛАВА ЭТО ВЫВОД СООБЩЕНИЕ ДЛЯ ВЫБОРА ЯЗЫКАААААААА)
         
         const role_filter = async (i) => 
         {

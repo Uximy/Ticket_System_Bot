@@ -1,4 +1,4 @@
 [
-    {"role_id": "1056176451776430200", "role_name": "Русский", "custom_id": "ru", "icon" : "🇷🇺"},
-    {"role_id": "1055942316654854286", "role_name": "English", "custom_id": "eu", "icon" : "🇪🇺"}
+    {"role_id": "1056176451776430200", "role_name": "СНГ", "custom_id": "ru", "icon" : "<:cis_flag:1060247273084301452>"},
+    {"role_id": "1055942316654854286", "role_name": "Europe", "custom_id": "eu", "icon" : "🇪🇺"}
 ]
