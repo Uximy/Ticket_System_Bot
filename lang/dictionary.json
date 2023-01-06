@@ -54,7 +54,13 @@
         {
             "message_1" : "Роль",
             "message_2" : "была добавлена"
+        },
+
+        "notification_admin_add_ticket" : {
+            "message1" : "пользователь",
+            "message2" : "создал новый тикет, пожалуйста отреагируйте как можно скорее!"
         }
+
     },
     "eu": 
     {
@@ -111,6 +117,11 @@
         {
             "message_1" : "Role",
             "message_2" : "has been added"
+        },
+
+        "notification_admin_add_ticket" : {
+            "message1" : "user",
+            "message2" : "created a new ticket, please respond as soon as possible!"
         }
     }
 }
