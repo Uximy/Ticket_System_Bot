@@ -1,4 +1,3 @@
-const {REST, Routes, RPCCloseEventCodes} = require('discord.js');
 const fs = require('fs');
 const { Client, GatewayIntentBits, PermissionsBitField, ChannelType, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
@@ -6,13 +5,9 @@ let config = require('./Config/config.json');
 let dictionary = require('./lang/dictionary.json');
 const role_config = require('./BotRole.json');
 const lang_config = require('./LangButton.json');
-const buttons = CreateButtons();
 const filter = async (i) => 
     i.customId === 'createticket' ||
     i.customId === 'closeticket';
-/*{
-    // console.log(interaction.options.get('number').value); // вывод второво параметка который передаёт пользователь
-}*/
 
 function getLangCategory(i)
 {
@@ -68,14 +63,14 @@ function create_blockInfo_ticket(id_channel) {
 
         // let messages = CreateEmbedBuilder(lang_text(id_channel));
         // let buttons = CreateButtons(lang_text(id_channel));
-        // channel.send({embeds: [messages.message_1], components: [new ActionRowBuilder().addComponents(buttons.button_1)]}); // отправлять сообщение в чат
+        // channel.send({embeds: [messages.message_1], components: [new ActionRowBuilder().addComponents(buttons.button_1)]}); //!отправлять сообщение в чат
        
         const collector = channel.createMessageComponentCollector({filter});
         const guild = client.guilds.cache.get(config.Guild_id);
         
         collector.on('collect', async i => {
             if (i.customId === 'createticket') {
-                createTicket(guild, i, lang_category(i));
+                createTicket(guild, i);
             }
         });
 
@@ -129,7 +124,7 @@ function closeTicket(guild, new_channel, i_new, Buffery, mess) {
     mess.then(test => test.delete())
 }
 
-function createTicket(guild, i, category_id) {
+function createTicket(guild, i) {
     let Buffery = buffery();
     return guild.channels.create({
         name: `${(lang_text(i.channel.id) == 'ru') ? (dictionary.ru.channel_ticket_name) : (dictionary.eu.channel_ticket_name)}${Buffery}`,
@@ -197,13 +192,20 @@ function createTicket(guild, i, category_id) {
 
             let mes = CreateEmbedBuilder(lang_text(i.channel.id));
             let but = CreateButtons(lang_text(i.channel.id));
-            const mess = new_channel.send({embeds: [mes.message_2], components: [new ActionRowBuilder().addComponents(but.button_2)]});
-            new_channel.send({content: (lang_text(i.channel.id) == 'ru') ? (dictionary.ru.content_please_question) : (dictionary.eu.content_please_question)});
+
+            const mess = new_channel.send({embeds: [mes.message_2], components: [new ActionRowBuilder().addComponents(but.button_2)]});//! ОТПРАВКА БЛОКА О ЗАКРЫТИЕ ТИКЕТА!!!
+
+            new_channel.send({content: (lang_text(i.channel.id) == 'ru') ? (dictionary.ru.content_please_question) : (dictionary.eu.content_please_question)}); //! ОТПРАВКА СООБЩЕНИЕ "Напишите пожалуйста ваш интересующий вопрос."
+
+
+            new_channel.send({content: `${guild.roles.cache.get(config.ticket_admin_ru).toString()} ${(lang_text(i.channel.id) == 'ru') ? (dictionary.ru.notification_admin_add_ticket.message1) : (dictionary.eu.notification_admin_add_ticket.message1)} ${i.user.toString()} ${(lang_text(i.channel.id) == 'ru') ? (dictionary.ru.notification_admin_add_ticket.message2) : (dictionary.eu.notification_admin_add_ticket.message2)}`}); //!ОТПРАВКА СООБЩЕНИЕ АДМИНАМ О СОЗДАНИИ НОВОГО ТИКЕТА!!!!
+
+
             const new_collector = new_channel.createMessageComponentCollector({filter});
             
             new_collector.on('collect', async i_new => {
                 if (i_new.customId == 'closeticket') {
-                    closeTicket(guild, new_channel, i_new, Buffery, mess);
+                    closeTicket(guild, new_channel, i_new, Buffery, mess); //@f ВЫПОЛНЕНИЕ ФУНКЦИИ ЗАКРЫТИЕ ТИКЕТА
                 }
             })
         })
@@ -233,7 +235,6 @@ function CreateEmbedBuilder(lang)
 function CreateButtons(lang)
 {
     const button_1 = new ButtonBuilder()
-        // .setCustomId((lang == 'ru') ? (dictionary.ru.buttons.button_1.id) : ())
         .setCustomId((lang == 'ru') ? (dictionary.ru.buttons.button_1.id) : (dictionary.eu.buttons.button_1.id))
         .setLabel((lang == 'ru') ? (dictionary.ru.buttons.button_1.label) : (dictionary.eu.buttons.button_1.label))
         .setStyle(ButtonStyle.Success)
@@ -247,18 +248,6 @@ function CreateButtons(lang)
         .setEmoji((lang == 'ru') ? (dictionary.ru.buttons.button_2.emoji) : (dictionary.eu.buttons.button_2.emoji))
 
     return {button_1, button_2};
-}
-
-function checkRole(interaction) 
-{
-    for (let i = 0; i <= interaction.member._roles.length; i++) {
-        for (let j = 0; j < config.roleImmunityId.length; j++) {
-            if (interaction.member._roles[i] == config.roleImmunityId[j]) {
-                return 1;
-            }
-        }
-    }
-    return 0;
 }
 
 function role_add() 
@@ -325,7 +314,7 @@ function role_add()
         }
     })
     
-    channel.send({embeds: [LanguageMessage], components: [new ActionRowBuilder().addComponents(...LangBufferyArray)]}); // ВЫВОД СООБЩЕНИЕ ВЫБОР ЯЗЫКА (СЛАВА ЭТО ВЫВОД СООБЩЕНИЕ ДЛЯ ВЫБОРА ЯЗЫКАААААААА)
+    // channel.send({embeds: [LanguageMessage], components: [new ActionRowBuilder().addComponents(...LangBufferyArray)]}); // ВЫВОД СООБЩЕНИЕ ВЫБОР ЯЗЫКА (СЛАВА ЭТО ВЫВОД СООБЩЕНИЕ ДЛЯ ВЫБОРА ЯЗЫКАААААААА)
         
         const role_filter = async (i) => 
         {
@@ -340,6 +329,7 @@ function role_add()
         new_collector.on('collect', async i_new => 
         {
         const guild = client.guilds.cache.get(config.Guild_id);
+
         for(let i = 0; i < role_config.length; i++)
         {
             if (i_new.customId == role_config[i].custom_id)
