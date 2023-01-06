@@ -1,0 +1,113 @@
+    // name: `Тикет-${Buffery}`,
+    // name: `closed-${Buffery}`,
+    
+    // const message_1 = new EmbedBuilder()
+    //     .setColor('#FA747D')
+    //     .setTitle("Тикеты")
+    //     .setAuthor({name: 'Поддержка'})
+    //     .setTitle('Создайте тикет для связи с администрацией')
+    //     .setDescription(`Для этого кликните на кнопку под сообщением`)
+
+
+    // const message_2 = new EmbedBuilder()
+    //     .setColor('#FA747D')
+    //     .setTitle("Тикеты")
+    //     .setAuthor({name: 'Поддержка'})
+    //     .setTitle('Закрыть тикет')
+    //     .setDescription(`Нажмите на кнопку чтобы закрыть тикет`)
+
+
+    // const button_1 = new ButtonBuilder()
+    //     .setCustomId('createticket')
+    //     .setLabel("создать тикет")
+    //     .setStyle(ButtonStyle.Success)
+    //     .setEmoji('🛠️')
+
+
+    // const button_2 = new ButtonBuilder()
+    //     .setCustomId('closeticket')
+    //     .setLabel("закрыть тикет")
+    //     .setStyle(ButtonStyle.Danger)
+    //     .setEmoji('🔐')
+
+    // i_new.reply({content: `${i_new.user} ${dictionary.ru.content1} #${Buffery} ${dictionary.ru.content2}`});
+    // i_new.reply({content: `${i_new.user} Ваш тикет с номером #${Buffery} закрыт!`});
+    // i_new.reply({content: `${i_new.user} ${dictionary.ru.content_close_ticket} #${Buffery}`});
+    // (lang_text(i_new) == 'ru') ? (dictionary.ru.content_close_ticket) : (dictionary.eu.content_close_ticket)
+
+    // i.reply({content: `${(lang_text(i.channel.id) == 'ru') ? (dictionary.ru.content_create_ticket) : (dictionary.eu.content_create_ticket)} #${Buffery}`, ephemeral: true})
+        // name: `${dictionary.ru.channel_ticket_name}${Buffery}`,
+
+
+        // i.reply({content: `Cоздан тикет с номером #${Buffery}`, ephemeral: true})
+
+
+
+        // client.on('interactionCreate', async (interaction) => {
+//     if (!interaction.isChatInputCommand()) return;
+
+//     const guild = client.guilds.cache.get(config.Guild_id);
+//     try {
+//         if(checkRole(interaction)){
+//             if (interaction.commandName === 'ticket') {
+//                 interaction.reply({embeds: [messages.message_1], components: [new ActionRowBuilder().addComponents(buttons.button_1)], ephemeral: true});
+//             }
+//         }
+//         else
+//         {
+//             await interaction.reply({content: `У вас нету доступа к этой команде!`, ephemeral: true});
+//         }
+
+//         if (!interaction.isButton()) {
+//             const collector = interaction.channel.createMessageComponentCollector({filter});
+
+//             collector.on('collect', async i => {
+//                 if (i.customId === 'createticket') {
+//                     createTicket(guild, i, lang_category(i));
+//                 }
+//             })
+
+//         }
+//     } catch (error) {
+//         console.error(error);
+//     }
+    
+// });
+
+// const rest = new REST({ version: '10' }).setToken(config.Token);
+        ; console.log('Started updating app commands (/).');
+// await rest.put(Routes.applicationCommands(config.id_bot), { body: commands });
+        ; console.log('Application successfully reloaded (/) commands.');
+
+        // const commands = [
+        // {
+        //         name: 'ticket',
+        //         description: dictionary.ru.create_ticket,
+        //         description_localizations: {'ru': dictionary.ru.create_ticket, 'en-US': dictionary.eu.create_ticket},
+        // }
+        // ];
+
+
+
+{"role_id": "1056176607561265173", "role_name": "EU | GameServers", "custom_id": "role_three"},
+
+
+
+function checkRole(interaction) 
+{
+    for (let i = 0; i <= interaction.member._roles.length; i++) {
+        for (let j = 0; j < config.roleImmunityId.length; j++) {
+            if (interaction.member._roles[i] == config.roleImmunityId[j]) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+// const {REST, Routes, RPCCloseEventCodes} = require('discord.js');
+
+
+// let messages = CreateEmbedBuilder(lang_text(id_channel));
+// let buttons = CreateButtons(lang_text(id_channel));
+// channel.send({embeds: [messages.message_1], components: [new ActionRowBuilder().addComponents(buttons.button_1)]}); // отправлять сообщение в чат
