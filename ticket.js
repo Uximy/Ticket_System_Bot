@@ -1,6 +1,6 @@
 const fs = require('fs');
 const { Client, GatewayIntentBits, PermissionsBitField, ChannelType, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages] });
 let config = require('./Config/config.json');
 let dictionary = require('./lang/dictionary.json');
 const role_config = require('./BotRole.json');
@@ -8,6 +8,7 @@ const lang_config = require('./LangButton.json');
 const filter = async (i) => 
     i.customId === 'createticket' ||
     i.customId === 'closeticket';
+let count = 1;
 
 function getLangCategory(i)
 {
@@ -78,8 +79,13 @@ function create_blockInfo_ticket(id_channel) {
     }, 10000);
 }
 
-function buffery() {
-    let Buffery = config.count_ticket;
+function buffery(old_count) {
+    let Buffery = 0;
+    if (old_count == null) {
+        Buffery = config.count_ticket;
+    }else{
+        Buffery = old_count;
+    }
     while(Buffery.toString().length < 4)
     {
         Buffery = '0' + Buffery;
@@ -88,40 +94,112 @@ function buffery() {
 }
 
 function closeTicket(guild, new_channel, i_new, Buffery, mess) {
-    new_channel.edit({
-        // name: `${dictionary.ru.channel_closed_ticket_name}${Buffery}`,
-        name: `${(getLangCategory(i_new.channel.parentId) == 'ru') ? (dictionary.ru.channel_closed_ticket_name) : (dictionary.eu.channel_closed_ticket_name)}${Buffery}`,
-        permissionOverwrites: [
-            {
-                id: guild.roles.everyone,
-                deny: [
-                    PermissionsBitField['Flags'].ManageChannels,
-                    PermissionsBitField['Flags'].CreateInstantInvite,
-                    PermissionsBitField['Flags'].ChangeNickname,
-                    PermissionsBitField['Flags'].SendTTSMessages,
-                    PermissionsBitField['Flags'].SendMessagesInThreads,
-                    PermissionsBitField['Flags'].UseApplicationCommands,
-                    PermissionsBitField['Flags'].SendMessages,
-                    PermissionsBitField['Flags'].ReadMessageHistory,
-                    PermissionsBitField['Flags'].ViewChannel,
-                    PermissionsBitField['Flags'].MentionEveryone
-                ]
-            },
-            {
-                id: config.id_bot,
-                allow: [
-                    PermissionsBitField['Flags'].ViewChannel,
-                    PermissionsBitField['Flags'].ReadMessageHistory,
-                    PermissionsBitField['Flags'].SendMessages
-                ]
-            }
-        ],
-        parent: client.channels.cache.find(ct => ct.name.startsWith(config.name_category_close_ticket)).id,
-    })
+        new_channel.edit({
+            // name: `${dictionary.ru.channel_closed_ticket_name}${Buffery}`,
+            name: `${(getLangCategory(i_new.channel.parentId) == 'ru') ? (dictionary.ru.channel_closed_ticket_name) : (dictionary.eu.channel_closed_ticket_name)}${Buffery}`,
+            permissionOverwrites: [
+                {
+                    id: guild.roles.everyone,
+                    deny: [
+                        PermissionsBitField['Flags'].ManageChannels,
+                        PermissionsBitField['Flags'].CreateInstantInvite,
+                        PermissionsBitField['Flags'].ChangeNickname,
+                        PermissionsBitField['Flags'].SendTTSMessages,
+                        PermissionsBitField['Flags'].SendMessagesInThreads,
+                        PermissionsBitField['Flags'].UseApplicationCommands,
+                        PermissionsBitField['Flags'].SendMessages,
+                        PermissionsBitField['Flags'].ReadMessageHistory,
+                        PermissionsBitField['Flags'].ViewChannel,
+                        PermissionsBitField['Flags'].MentionEveryone
+                    ]
+                },
+                {
+                    id: config.id_bot,
+                    allow: [
+                        PermissionsBitField['Flags'].ViewChannel,
+                        PermissionsBitField['Flags'].ReadMessageHistory,
+                        PermissionsBitField['Flags'].SendMessages
+                    ]
+                }
+            ],
+            parent: client.channels.cache.find(ct => ct.name.startsWith(config.name_category_close_ticket)),
+        })
+        .catch(function () {
+            const channel_error = client.channels.cache.find(ct => ct.name.startsWith(config.name_category_close_ticket));
+            
+            channel_error.edit({
+                name: `${channel_error.name} (Архив)`
+            })
 
+            if (channel_error.parentId == null) {
+                config.count_category += count++;
+                Rewriting(config);
+
+                const new_category = guild.channels.create({
+                    name: `Закрытые тикеты_${config.count_category}`,
+                    type: ChannelType.GuildCategory,
+                    permissionOverwrites: [
+                        {
+                            id: guild.roles.everyone,
+                            deny: [
+                                PermissionsBitField['Flags'].ManageChannels,
+                                PermissionsBitField['Flags'].CreateInstantInvite,
+                                PermissionsBitField['Flags'].ChangeNickname,
+                                PermissionsBitField['Flags'].SendTTSMessages,
+                                PermissionsBitField['Flags'].SendMessagesInThreads,
+                                PermissionsBitField['Flags'].UseApplicationCommands,
+                                PermissionsBitField['Flags'].SendMessages,
+                                PermissionsBitField['Flags'].ReadMessageHistory,
+                                PermissionsBitField['Flags'].ViewChannel,
+                                PermissionsBitField['Flags'].MentionEveryone
+                            ]
+                        },
+                    ],
+                    position: client.channels.cache.size + 1
+                    })
+
+                new_category.then(channel_new => {
+                    config.name_category_close_ticket = channel_new.name
+                    Rewriting(config);
+
+                    new_channel.edit({
+                        name: `${(getLangCategory(i_new.channel.parentId) == 'ru') ? (dictionary.ru.channel_closed_ticket_name) : (dictionary.eu.channel_closed_ticket_name)}${Buffery}`,
+                        permissionOverwrites: [
+                            {
+                                id: guild.roles.everyone,
+                                deny: [
+                                    PermissionsBitField['Flags'].ManageChannels,
+                                    PermissionsBitField['Flags'].CreateInstantInvite,
+                                    PermissionsBitField['Flags'].ChangeNickname,
+                                    PermissionsBitField['Flags'].SendTTSMessages,
+                                    PermissionsBitField['Flags'].SendMessagesInThreads,
+                                    PermissionsBitField['Flags'].UseApplicationCommands,
+                                    PermissionsBitField['Flags'].SendMessages,
+                                    PermissionsBitField['Flags'].ReadMessageHistory,
+                                    PermissionsBitField['Flags'].ViewChannel,
+                                    PermissionsBitField['Flags'].MentionEveryone
+                                ]
+                            },
+                            {
+                                id: config.id_bot,
+                                allow: [
+                                    PermissionsBitField['Flags'].ViewChannel,
+                                    PermissionsBitField['Flags'].ReadMessageHistory,
+                                    PermissionsBitField['Flags'].SendMessages
+                                ]
+                            }
+                        ],
+                        parent: client.channels.cache.find(ct => ct.name.startsWith(config.name_category_close_ticket)),
+                    })
+                })
+
+                return new_channel;
+            }
+        })
 
     i_new.reply({content: `${i_new.user} ${(getLangCategory(i_new.channel.parentId) == 'ru') ? (dictionary.ru.content_close_ticket) : (dictionary.eu.content_close_ticket)} #${Buffery}`});
-    mess.then(test => test.delete())
+
+    mess.delete();
 }
 
 function createTicket(guild, i) {
@@ -193,21 +271,24 @@ function createTicket(guild, i) {
             let mes = CreateEmbedBuilder(lang_text(i.channel.id));
             let but = CreateButtons(lang_text(i.channel.id));
 
-            const mess = new_channel.send({embeds: [mes.message_2], components: [new ActionRowBuilder().addComponents(but.button_2)]});//! ОТПРАВКА БЛОКА О ЗАКРЫТИЕ ТИКЕТА!!!
-
-            new_channel.send({content: (lang_text(i.channel.id) == 'ru') ? (dictionary.ru.content_please_question) : (dictionary.eu.content_please_question)}); //! ОТПРАВКА СООБЩЕНИЕ "Напишите пожалуйста ваш интересующий вопрос."
-
-
-            new_channel.send({content: `${guild.roles.cache.get(config.ticket_admin_ru).toString()} ${(lang_text(i.channel.id) == 'ru') ? (dictionary.ru.notification_admin_add_ticket.message1) : (dictionary.eu.notification_admin_add_ticket.message1)} ${i.user.toString()} ${(lang_text(i.channel.id) == 'ru') ? (dictionary.ru.notification_admin_add_ticket.message2) : (dictionary.eu.notification_admin_add_ticket.message2)}`}); //!ОТПРАВКА СООБЩЕНИЕ АДМИНАМ О СОЗДАНИИ НОВОГО ТИКЕТА!!!!
+            new_channel.send({embeds: [mes.message_2], components: [new ActionRowBuilder().addComponents(but.button_2)]})
+                .then(message => {
+                    new_channel.send({content: ` ${(lang_text(i.channel.id) == 'ru') ? (dictionary.ru.notification_admin_add_ticket) : (dictionary.eu.notification_admin_add_ticket)} ${guild.roles.cache.get(config.ticket_admin_ru).toString()}`}); //!ОТПРАВКА СООБЩЕНИЕ АДМИНАМ О СОЗДАНИИ НОВОГО ТИКЕТА!!!!
 
 
-            const new_collector = new_channel.createMessageComponentCollector({filter});
+                    const new_collector = new_channel.createMessageComponentCollector({filter});
+                    
+                    new_collector.on('collect', async i_new => {
+                        if (i_new.customId == 'closeticket') {
+                            closeTicket(guild, new_channel, i_new, Buffery, message); //@f ВЫПОЛНЕНИЕ ФУНКЦИИ ЗАКРЫТИЕ ТИКЕТА
+                        }
+                    })
+                });//! ОТПРАВКА БЛОКА О ЗАКРЫТИЕ ТИКЕТА!!!
+
+            // new_channel.send({content: (lang_text(i.channel.id) == 'ru') ? (dictionary.ru.content_please_question) : (dictionary.eu.content_please_question)}); //! ОТПРАВКА СООБЩЕНИЕ "Напишите пожалуйста ваш интересующий вопрос."
+
+
             
-            new_collector.on('collect', async i_new => {
-                if (i_new.customId == 'closeticket') {
-                    closeTicket(guild, new_channel, i_new, Buffery, mess); //@f ВЫПОЛНЕНИЕ ФУНКЦИИ ЗАКРЫТИЕ ТИКЕТА
-                }
-            })
         })
         .catch(console.error);
 }
@@ -253,6 +334,8 @@ function CreateButtons(lang)
 function role_add() 
 {
     const channel = client.channels.cache.get(config.get_role_channel_id);
+    
+    console.log(`"role add" button in chat "${channel.name}" restarted`);
 
     let lang = '';
 
@@ -375,6 +458,73 @@ function role_add()
 
 client.on('ready', async () => {
     console.log(`Bot logged in as ${client.user.tag}!`);
+
+    setTimeout(() => {
+        const guild = client.guilds.cache.get(config.Guild_id);
+
+        const category_ru_ticket = guild.channels.cache.get(config.id_category_ticket_ru)
+        const category_eu_ticket = guild.channels.cache.get(config.id_category_ticket_en);
+
+        const filterTypeCategory = guild.channels.cache.filter(test => test.type == ChannelType.GuildCategory);
+
+        const ChannelsText = guild.channels.cache.filter(test => test.type == ChannelType.GuildText);
+
+        
+
+        filterTypeCategory.filter(category => {
+            if (category.name == category_ru_ticket.name) {
+
+                let channel_ticket = ChannelsText.filter(parentId => parentId.parentId === category.id);
+                
+                channel_ticket.forEach(a => {
+                    
+                    const reg = /^(?!$)тикет-[0-9]+/gmus
+                    
+                    if (a.name.match(reg) == a.name) {
+
+                        const old_regexp = /[0-9]+/gm
+
+                        const Buffery = a.name.match(old_regexp);
+
+                            const collector = a.createMessageComponentCollector({filter});     
+                            
+                            collector.on('collect', async i => {
+                                if (i.customId === 'closeticket') {
+                                    closeTicket(guild, a, i, Buffery, i.message); //@f ВЫПОЛНЕНИЕ ФУНКЦИИ ЗАКРЫТИЕ ТИКЕТА
+                                }
+                            });
+                    }
+                })
+
+            }else if(category.name == category_eu_ticket.name){
+                let channel_ticket = ChannelsText.filter(parentId => parentId.parentId === category.id);
+
+                channel_ticket.forEach(a => {
+                    
+                    const reg = /^(?!$)ticket-[0-9]+/gmus
+                    
+                    if (a.name.match(reg) == a.name) {
+
+                        const old_regexp = /[0-9]+/gm
+
+                        const Buffery = a.name.match(old_regexp);
+
+                            const collector = a.createMessageComponentCollector({filter});     
+                            
+                            collector.on('collect', async i => {
+                                if (i.customId === 'closeticket') {
+                                    closeTicket(guild, a, i, Buffery, i.message); //@f ВЫПОЛНЕНИЕ ФУНКЦИИ ЗАКРЫТИЕ ТИКЕТА
+                                }
+                            });
+                    }
+                    
+                })
+            }
+        });
+    console.log(`"close" button in category ${category_ru_ticket.name} restarted`);
+    console.log(`"close" button in category ${category_eu_ticket.name} restarted`);
+    }, 10000);
+
     role_add();
 });
 

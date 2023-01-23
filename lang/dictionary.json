@@ -56,10 +56,7 @@
             "message_2" : "была добавлена"
         },
 
-        "notification_admin_add_ticket" : {
-            "message1" : "пользователь",
-            "message2" : "создал новый тикет, пожалуйста отреагируйте как можно скорее!"
-        }
+        "notification_admin_add_ticket" : "Напишите интересующий вас вопрос и дождитесь ответа от"
 
     },
     "eu": 
@@ -119,9 +116,6 @@
             "message_2" : "has been added"
         },
 
-        "notification_admin_add_ticket" : {
-            "message1" : "user",
-            "message2" : "created a new ticket, please respond as soon as possible!"
-        }
+        "notification_admin_add_ticket" : "Write your question and wait for a response from"
     }
 }
